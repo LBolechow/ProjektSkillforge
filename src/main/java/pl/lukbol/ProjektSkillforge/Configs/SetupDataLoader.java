@@ -56,9 +56,12 @@ public class SetupDataLoader implements
         if (userRepository.findByEmail("admin@testowy.com") == null) {
             Role adminRole = roleRepository.findByName("ROLE_ADMIN");
             User adminUser = new User();
-            adminUser.setName("Admin");
+            adminUser.setUsername("Admin");
+            adminUser.setName("Jan");
+            adminUser.setSurname("Kowalski");
             adminUser.setPassword(passwordEncoder.encode("admin1234"));
             adminUser.setEmail("admin@testowy.com");
+            adminUser.setPhoneNumber("123456789");
             adminUser.setRoles(Arrays.asList(adminRole));
             userRepository.save(adminUser);
         }

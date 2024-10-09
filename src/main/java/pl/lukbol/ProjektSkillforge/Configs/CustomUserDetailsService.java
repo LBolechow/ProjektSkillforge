@@ -34,7 +34,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
         User user;
-        
+
         if (isEmail(usernameOrEmail)) {
             user = userRepository.findOptionalByEmail(usernameOrEmail)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + usernameOrEmail));
@@ -51,7 +51,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     private boolean isEmail(String usernameOrEmail) {
-        return usernameOrEmail.contains("@") && usernameOrEmail.contains(".");
+        return usernameOrEmail != null && usernameOrEmail.contains("@") && usernameOrEmail.contains(".");
     }
 
     private List<String> getPrivileges(Collection<Role> roles) {
