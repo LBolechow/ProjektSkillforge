@@ -19,11 +19,11 @@ import pl.lukbol.ProjektSkillforge.Utils.JwtUtil;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final CustomUserDetailsService customerUserDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
     private final JwtUtil jwtUtil;
 
     public SecurityConfig(CustomUserDetailsService customerUserDetailsService, JwtUtil jwtUtil) {
-        this.customerUserDetailsService = customerUserDetailsService;
+        this.customUserDetailsService = customerUserDetailsService;
         this.jwtUtil = jwtUtil;
     }
     @Bean
@@ -55,7 +55,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManagerBean(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.userDetailsService(customerUserDetailsService);
+        authenticationManagerBuilder.userDetailsService(customUserDetailsService);
         return authenticationManagerBuilder.build();
     }
     @Bean

@@ -32,26 +32,15 @@ public class CustomUserDetailsService implements UserDetailsService {
         return getGrantedAuthorities(getPrivileges(roles));
     }
     @Override
-    public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
-        User user;
-
-        if (isEmail(usernameOrEmail)) {
-            user = userRepository.findOptionalByEmail(usernameOrEmail)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + usernameOrEmail));
-        } else {
-            user = userRepository.findOptionalByUsername(usernameOrEmail)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + usernameOrEmail));
-        }
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findOptionalByUsername(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
         System.out.println("Logging in via form");
 
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(), user.getPassword(), true, true, true,
                 true, getAuthorities(user.getRoles()));
-    }
-
-    private boolean isEmail(String usernameOrEmail) {
-        return usernameOrEmail != null && usernameOrEmail.contains("@") && usernameOrEmail.contains(".");
     }
 
     private List<String> getPrivileges(Collection<Role> roles) {

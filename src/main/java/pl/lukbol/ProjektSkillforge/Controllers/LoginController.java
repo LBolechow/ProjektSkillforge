@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import pl.lukbol.ProjektSkillforge.Models.User;
+import pl.lukbol.ProjektSkillforge.Repositories.UserRepository;
 import pl.lukbol.ProjektSkillforge.Utils.JwtUtil;
 
 import java.util.Collections;
@@ -25,9 +26,12 @@ public class LoginController {
 
     private AuthenticationManager authenticationManager;
 
-    public LoginController(JwtUtil jwtUtil, AuthenticationManager authenticationManager) {
+    private UserRepository userRepository;
+
+    public LoginController(JwtUtil jwtUtil, AuthenticationManager authenticationManager,UserRepository userRepository) {
         this.jwtUtil = jwtUtil;
         this.authenticationManager = authenticationManager;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/login")
@@ -35,12 +39,23 @@ public class LoginController {
         String usernameOrEmail = request.getEmail() != null ? request.getEmail() : request.getUsername();
 
         try {
+            String username;
+            if (usernameOrEmail.contains("@") && usernameOrEmail.contains(".")) {
+                User userByEmail = userRepository.findByEmail(usernameOrEmail);
+                if (userByEmail == null) {
+                    throw new BadCredentialsException("Błędny email lub hasło.");
+                }
+                username = userByEmail.getUsername();
+            } else {
+                username = usernameOrEmail;
+            }
+
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(usernameOrEmail, request.getPassword())
+                    new UsernamePasswordAuthenticationToken(username, request.getPassword())
             );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            String token = jwtUtil.generateToken(usernameOrEmail);
+            String token = jwtUtil.generateToken(username);
 
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
