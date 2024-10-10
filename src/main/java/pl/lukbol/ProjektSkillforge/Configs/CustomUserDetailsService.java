@@ -39,7 +39,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         System.out.println("Logging in via form");
 
         return new org.springframework.security.core.userdetails.User(
-                user.getEmail(), user.getPassword(), true, true, true,
+                user.getUsername(), user.getPassword(), true, true, true,
                 true, getAuthorities(user.getRoles()));
     }
 
