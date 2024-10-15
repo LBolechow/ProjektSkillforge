@@ -4,16 +4,21 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import pl.lukbol.ProjektSkillforge.Repositories.BlacklistedTokenRepository;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 @Component
+@RequiredArgsConstructor
 public class JwtUtil {
+
+    private final BlacklistedTokenRepository blacklistedTokenRepository;
     @Value("${jwt.secret}")
     private String secretKey;
 
@@ -54,12 +59,14 @@ public class JwtUtil {
     public Boolean isTokenExpired(String token) {
         return extractAllClaims(token).getExpiration().before(new Date());
     }
-
     public String extractJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
         return null;
+    }
+    public boolean isTokenBlacklisted(String token) {
+        return blacklistedTokenRepository.findOptionalByToken(token).isPresent();
     }
 }

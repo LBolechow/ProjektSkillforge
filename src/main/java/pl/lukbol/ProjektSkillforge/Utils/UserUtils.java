@@ -102,6 +102,7 @@ public class UserUtils {
         message.setText("Kliknij w link, aby zresetować swoje hasło: " + resetLink);
         javaMailSender.send(message);
     }
+
     public ModelAndView createActivationErrorResponse(String message) {
         ModelAndView modelAndView = new ModelAndView("errorView");
         modelAndView.addObject("errorMessage", message);

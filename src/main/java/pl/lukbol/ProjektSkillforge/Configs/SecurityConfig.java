@@ -20,7 +20,6 @@ import pl.lukbol.ProjektSkillforge.Utils.JwtUtil;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
     private final CustomUserDetailsService customUserDetailsService;
     private final JwtUtil jwtUtil;
 

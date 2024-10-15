@@ -34,6 +34,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         String jwt = jwtUtil.extractJwtFromRequest(request);
 
+        if (jwtUtil.isTokenBlacklisted(jwt)) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token został unieważniony");
+            return;
+        }
+
 
         if (jwt != null) {
             username = jwtUtil.extractUsername(jwt);

@@ -335,8 +335,9 @@ public class UserService {
         BlacklistedToken blacklistedToken = new BlacklistedToken(token, issuedAt);
         blacklistedTokenRepository.save(blacklistedToken);
 
-        return userUtils.createSuccessResponse("Wylogowano pomyślnie");
         //Przekierowanie do strony login po stronie frontendu.
+        return userUtils.createSuccessResponse("Wylogowano pomyślnie");
+
     }
 
 }

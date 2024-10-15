@@ -7,10 +7,10 @@ import java.util.Date;
 @Entity
 @Table(name="activationTokens")
 public class ActivationToken {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     private String token;
 
     @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
