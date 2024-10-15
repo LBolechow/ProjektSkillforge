@@ -28,18 +28,15 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        final String authorizationHeader = request.getHeader("Authorization");
-
-        String username = null;
 
         String jwt = jwtUtil.extractJwtFromRequest(request);
 
-        if (jwtUtil.isTokenBlacklisted(jwt)) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token został unieważniony");
+        if (jwt != null && jwtUtil.isTokenBlacklisted(jwt)) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Brak tokena lub token został unieważniony");
             return;
         }
 
-
+        String username = null;
         if (jwt != null) {
             username = jwtUtil.extractUsername(jwt);
         }
