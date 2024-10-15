@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import pl.lukbol.ProjektSkillforge.Models.Privilege;
 import pl.lukbol.ProjektSkillforge.Models.Role;
 import pl.lukbol.ProjektSkillforge.Models.User;
-import pl.lukbol.ProjektSkillforge.Repositories.RoleRepository;
 import pl.lukbol.ProjektSkillforge.Repositories.UserRepository;
 
 import java.util.ArrayList;
@@ -18,16 +17,11 @@ import java.util.Collection;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    private RoleRepository roleRepository;
-
-    public CustomUserDetailsService(UserRepository userRepository, RoleRepository roleRepository) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-    }
 
     private Collection<? extends GrantedAuthority> getAuthorities(
             Collection<Role> roles) {
