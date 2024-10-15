@@ -17,16 +17,20 @@ public class User {
      private Long Id;
 
     private String username;
-    @NotNull
+
     private String name;
-    @NotNull
+
     private String surname;
-    @NotNull
+
     private String email;
-    @NotNull
+
     private String phoneNumber;
-    @NotNull
+
     private String password;
+
+    private boolean activated;
+
+
 
     @ManyToMany
     @JoinTable(
@@ -41,13 +45,14 @@ public class User {
     public User() {
     }
 
-    public User(String name, String surname, String email, String phoneNumber, String password, String username) {
+    public User(String name, String surname, String email, String phoneNumber, String password, String username, Boolean activated) {
         this.name = name;
         this.surname = surname;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;
         this.username=username;
+        this.activated=activated;
     }
 
     public Long getId() {
@@ -112,5 +117,13 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public boolean isActivated() {
+        return activated;
+    }
+
+    public void setActivated(boolean activated) {
+        this.activated = activated;
     }
 }

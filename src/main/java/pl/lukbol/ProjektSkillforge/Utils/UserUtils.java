@@ -6,8 +6,11 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+import pl.lukbol.ProjektSkillforge.Models.ActivationToken;
 import pl.lukbol.ProjektSkillforge.Models.PasswordToken;
 import pl.lukbol.ProjektSkillforge.Models.User;
+import pl.lukbol.ProjektSkillforge.Repositories.ActivationTokenRepository;
 import pl.lukbol.ProjektSkillforge.Repositories.PasswordTokenRepository;
 import pl.lukbol.ProjektSkillforge.Repositories.UserRepository;
 
@@ -23,12 +26,15 @@ public class UserUtils {
 
     private JavaMailSender javaMailSender;
 
-    private PasswordTokenRepository passwordToken;
+    private PasswordTokenRepository passwordTokenRepository;
 
-    public UserUtils(UserRepository userRepository, PasswordTokenRepository passwordToken, JavaMailSender javaMailSender) {
+    private ActivationTokenRepository activationTokenRepository;
+
+    public UserUtils(UserRepository userRepository, PasswordTokenRepository passwordTokenRepository, JavaMailSender javaMailSender, ActivationTokenRepository activationTokenRepository) {
         this.userRepository = userRepository;
-        this.passwordToken = passwordToken;
+        this.passwordTokenRepository = passwordTokenRepository;
         this.javaMailSender = javaMailSender;
+        this.activationTokenRepository = activationTokenRepository;
 
     }
 
@@ -62,29 +68,51 @@ public class UserUtils {
         response.put("message", message);
         return ResponseEntity.ok(response);
     }
+    public ModelAndView createSuccessRedirectResponse(String message) {
+        ModelAndView modelAndView = new ModelAndView("login");
+        modelAndView.addObject("Wiadomość", message);
+        return modelAndView;
+    }
     public boolean isNullOrEmpty(String value) {
         return value == null || value.isEmpty();
     }
 
-    public void sendResetEmail(String to, String newPassword) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        javaMailSender.send(message);
-    }
     public void createPasswordResetTokenForUser(User user) {
         String token = UUID.randomUUID().toString();
         Date expiryDate = new Date(System.currentTimeMillis() + 3600000);
         PasswordToken myToken = new PasswordToken(token, user, expiryDate);
-        passwordToken.save(myToken);
+        passwordTokenRepository.save(myToken);
         sendPasswordResetEmail(user.getEmail(), token);
 
     }
+    public void createAccountActivationToken(User user) {
+        String token = UUID.randomUUID().toString();
+        Date expiryDate = new Date(System.currentTimeMillis() + 24 * 3600000);
+        ActivationToken myToken = new ActivationToken(token, user, expiryDate);
+        activationTokenRepository.save(myToken);
+        sendAccountActivationEmail(user.getEmail(), token);
+
+    }
+    public void sendAccountActivationEmail(String email, String token) {
+        String activationLink = "http://localhost:8080/activate?token=" + token;
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject("Resetowanie hasła");
+        message.setText("Kliknij w link aby aktywować konto: " + activationLink);
+        javaMailSender.send(message);
+    }
     public void sendPasswordResetEmail(String email, String token) {
-        String resetLink = "http://localhost:8080/reset?token=" + token; // Zmień na prawidłowy link do resetu hasła
+        String resetLink = "http://localhost:8080/reset?token=" + token;
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
         message.setSubject("Resetowanie hasła");
         message.setText("Kliknij w link, aby zresetować swoje hasło: " + resetLink);
         javaMailSender.send(message);
+    }
+    public ModelAndView createActivationErrorResponse(String message) {
+        ModelAndView modelAndView = new ModelAndView("errorView");
+        modelAndView.addObject("errorMessage", message);
+        return modelAndView;
     }
 
 }

@@ -52,16 +52,21 @@ public class UserController {
         return userService.resetPasswordEmail(email);
     }
     //Otwieram widok strony do resetowania hasła
-    @GetMapping("/resetSite")
+    @GetMapping("/user/resetSite")
     public ModelAndView showResetPasswordPage(@RequestParam String token) {
         return userService.showResetPasswordPage(token);
     }
 
     //Resetuję hasło na stronie z tokenem
-    @PostMapping("/resetPassword")
+    @PostMapping("/user/resetPassword")
     public ResponseEntity<Map<String, Object>> resetPassword(@RequestParam String token, @RequestParam String newPassword, @RequestParam String repeatPassword) {
         return userService.resetPassword(token, newPassword, repeatPassword);
     }
+    @PostMapping("/user/activateAccount")
+    public ModelAndView activateAccount(@RequestParam String token){
+        return userService.activateAccount(token);
+    }
+
 
 
 

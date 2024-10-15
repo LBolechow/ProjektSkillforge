@@ -4,16 +4,22 @@ import jakarta.transaction.Transactional;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import pl.lukbol.ProjektSkillforge.Models.ActivationToken;
 import pl.lukbol.ProjektSkillforge.Models.PasswordToken;
 import pl.lukbol.ProjektSkillforge.Models.Role;
 import pl.lukbol.ProjektSkillforge.Models.User;
+import pl.lukbol.ProjektSkillforge.Repositories.ActivationTokenRepository;
 import pl.lukbol.ProjektSkillforge.Repositories.PasswordTokenRepository;
 import pl.lukbol.ProjektSkillforge.Repositories.RoleRepository;
 import pl.lukbol.ProjektSkillforge.Repositories.UserRepository;
@@ -36,14 +42,59 @@ public class UserService {
 
     private PasswordTokenRepository passwordTokenRepository;
 
+    private AuthenticationManager authenticationManager;
 
-    public UserService(PasswordEncoder passwordEncoder, JwtUtil jwtUtil, UserUtils userUtils, UserRepository userRepository, RoleRepository roleRepository, PasswordTokenRepository passwordTokenRepository) {
+    private ActivationTokenRepository activationTokenRepository;
+
+    public UserService(PasswordEncoder passwordEncoder, JwtUtil jwtUtil, UserUtils userUtils, UserRepository userRepository, RoleRepository roleRepository, PasswordTokenRepository passwordTokenRepository, AuthenticationManager authenticationManager, ActivationTokenRepository activationTokenRepository) {
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.userUtils = userUtils;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordTokenRepository = passwordTokenRepository;
+        this.authenticationManager=authenticationManager;
+        this.activationTokenRepository=activationTokenRepository;
+    }
+    @Transactional
+    public ResponseEntity<Map<String, Object>> authenticateUser(String usernameOrEmail,
+                                                                String password) {
+        String username;
+        try {
+            if (usernameOrEmail.contains("@") && usernameOrEmail.contains(".")) {
+                User userByEmail = userRepository.findByEmail(usernameOrEmail);
+                if (userByEmail == null) {
+                    throw new BadCredentialsException("Nie znaleziono użytkownika o takim adresie email.");
+                }
+                username = userByEmail.getUsername();
+            } else {
+                username = usernameOrEmail;
+            }
+            User user = userRepository.findOptionalByUsername(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("Brak użytkownika z taką nazwą: " + username));
+            if (!user.isActivated())
+            {
+                //Możliwa opcja generowania nowego tokena email podczas logowania
+                throw new BadCredentialsException("Użytkownik nie jest aktywowany. Sprawdź swój adres email");
+            }
+
+
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(username, password)
+            );
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String token = jwtUtil.generateToken(username);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("redirectUrl", "http://localhost:8080/main");
+            return ResponseEntity.ok(response);
+
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Collections.singletonMap("message", "Błędna nazwa użytkownika/email lub hasło."));
+        }
     }
 
     @Transactional
@@ -71,21 +122,27 @@ public class UserService {
                 request.getSurname(),
                 request.getEmail(),
                 request.getPhoneNumber(),
-                passwordEncoder.encode(request.getPassword())
+                passwordEncoder.encode(request.getPassword()),
+                false
         );
+
         //Automatycznie nadaję rolę Client podczas rejestracji.
         Role role = roleRepository.findByName("ROLE_CLIENT");
         regUser.setRoles(Arrays.asList(role));
 
         try {
             userRepository.save(regUser);
-        } catch (Exception e) {
-            return userUtils.createErrorResponse("Wystąpił błąd podczas rejestracji.");
+        } catch (DataAccessException e) {
+            return userUtils.createErrorResponse("Błąd: " + e.getMessage());
         }
 
-        String token = jwtUtil.generateToken(regUser.getUsername());
+        try {
+            userUtils.createAccountActivationToken(regUser);
+        } catch (Exception e) {
+            return userUtils.createErrorResponse("Błąd: " + e.getMessage());
+        }
 
-        return userUtils.createSuccessResponse("Poprawnie utworzono konto.");
+        return userUtils.createSuccessResponse("Poprawnie utworzono konto. Na adres email został wysłany link aktywacyjny.");
     }
     public User getUserDetails(Authentication authentication)
     {
@@ -141,7 +198,7 @@ public class UserService {
             user.setEmail(email);
             userRepository.save(user);
         } catch (DataAccessException e) {
-            return userUtils.createErrorResponse("Coś poszło nie tak przy zapisie do bazy danych.");
+            return userUtils.createErrorResponse("Błąd: " + e.getMessage());
         }
 
         return userUtils.createSuccessResponse("Poprawnie zapisano zmiany.");
@@ -161,7 +218,7 @@ public class UserService {
         }
         catch (DataAccessException e)
         {
-            return userUtils.createErrorResponse("Nie udało się usunąć konta.");
+            return userUtils.createErrorResponse("Błąd: " + e.getMessage());
         }
 
         return userUtils.createSuccessResponse("Poprawnie usunięto konto.");
@@ -177,7 +234,7 @@ public class UserService {
         }
         catch (DataAccessException e)
         {
-            return userUtils.createErrorResponse("Operacja resetu hasła nie powiodła się.");
+            return userUtils.createErrorResponse("Błąd: " + e.getMessage());
         }
 
         return userUtils.createSuccessResponse("Poprawnie usunięto konto.");
@@ -234,10 +291,47 @@ public class UserService {
         try {
             userRepository.save(user);
         } catch (DataAccessException e) {
-            return userUtils.createErrorResponse("Wystąpił błąd podczas zmiany hasła");
+            return userUtils.createErrorResponse("Błąd: " + e.getMessage());
         }
 
         return userUtils.createSuccessResponse("Poprawnie zmieniono hasło.");
+    }
+
+
+    public ModelAndView activateAccount(String token){
+        Optional<ActivationToken> optionalActivationToken = activationTokenRepository.findOptionalByToken(token);
+
+        if (optionalActivationToken.isEmpty()) {
+            return userUtils.createActivationErrorResponse("Token jest nieprawidłowy lub wygasł.");
+        }
+
+
+        ActivationToken activationToken = optionalActivationToken.get();
+        String username = activationToken.getUser().getUsername();
+
+        if (userUtils.isNullOrEmpty(username)) {
+           return userUtils.createActivationErrorResponse("Nazwa użytkownika jest pusta.");
+        }
+
+        User user = userRepository.findOptionalByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Nie znaleziono użytkownika: " + username + " powiązanego z tokenem."));
+
+
+        if (optionalActivationToken.get().isExpired())
+        {
+            userUtils.createAccountActivationToken(user);
+            return userUtils.createActivationErrorResponse("Token wygasł. Nowy zostanie wysłany ta ten sam adres email.");
+        }
+
+        try {
+            user.setActivated(true);
+            userRepository.save(user);
+        } catch (DataAccessException e) {
+            return userUtils.createActivationErrorResponse("Błąd: " + e.getMessage());
+        }
+
+
+        return userUtils.createSuccessRedirectResponse("Aktywowane konto! Możesz się zalogować");
     }
 
 
