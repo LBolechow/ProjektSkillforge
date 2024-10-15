@@ -1,6 +1,7 @@
 package pl.lukbol.ProjektSkillforge.Utils;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -20,23 +21,16 @@ import java.util.Map;
 import java.util.UUID;
 
 @Component
+@RequiredArgsConstructor
 public class UserUtils {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    private JavaMailSender javaMailSender;
+    private final JavaMailSender javaMailSender;
 
-    private PasswordTokenRepository passwordTokenRepository;
+    private final PasswordTokenRepository passwordTokenRepository;
 
-    private ActivationTokenRepository activationTokenRepository;
-
-    public UserUtils(UserRepository userRepository, PasswordTokenRepository passwordTokenRepository, JavaMailSender javaMailSender, ActivationTokenRepository activationTokenRepository) {
-        this.userRepository = userRepository;
-        this.passwordTokenRepository = passwordTokenRepository;
-        this.javaMailSender = javaMailSender;
-        this.activationTokenRepository = activationTokenRepository;
-
-    }
+    private final ActivationTokenRepository activationTokenRepository;
 
     public boolean emailExists(String email) {
         return userRepository.findByEmail(email) != null;
@@ -52,7 +46,7 @@ public class UserUtils {
     private static final String PASSWORD_PATTERN =
             "^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\\-\\[\\]{};':\"\\\\|,.<>/?]).{8,}$";
 
-    public static boolean isValidPassword(String password) {
+    public boolean isValidPassword(String password) {
         return password != null && password.matches(PASSWORD_PATTERN);
     }
 
@@ -79,7 +73,7 @@ public class UserUtils {
 
     public void createPasswordResetTokenForUser(User user) {
         String token = UUID.randomUUID().toString();
-        Date expiryDate = new Date(System.currentTimeMillis() + 3600000);
+        Date expiryDate = new Date(System.currentTimeMillis() + 3600000); //+ 1 godzina
         PasswordToken myToken = new PasswordToken(token, user, expiryDate);
         passwordTokenRepository.save(myToken);
         sendPasswordResetEmail(user.getEmail(), token);
@@ -87,11 +81,10 @@ public class UserUtils {
     }
     public void createAccountActivationToken(User user) {
         String token = UUID.randomUUID().toString();
-        Date expiryDate = new Date(System.currentTimeMillis() + 24 * 3600000);
+        Date expiryDate = new Date(System.currentTimeMillis() + 24 * 3600000); //+ 24h
         ActivationToken myToken = new ActivationToken(token, user, expiryDate);
         activationTokenRepository.save(myToken);
         sendAccountActivationEmail(user.getEmail(), token);
-
     }
     public void sendAccountActivationEmail(String email, String token) {
         String activationLink = "http://localhost:8080/activate?token=" + token;
