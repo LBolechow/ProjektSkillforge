@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.util.Collection;
 
 @Entity
+@Table(name="roles")
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

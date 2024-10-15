@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.util.Collection;
 
 @Entity
+@Table(name="privileges")
 public class Privilege {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

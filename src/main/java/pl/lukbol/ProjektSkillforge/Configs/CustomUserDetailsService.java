@@ -18,13 +18,16 @@ import java.util.Collection;
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private UserRepository userRepository;
 
-    private final RoleRepository roleRepository;
+    private RoleRepository roleRepository;
 
+    public CustomUserDetailsService(UserRepository userRepository, RoleRepository roleRepository) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+    }
 
     private Collection<? extends GrantedAuthority> getAuthorities(
             Collection<Role> roles) {

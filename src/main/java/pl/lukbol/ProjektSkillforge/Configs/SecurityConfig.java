@@ -1,5 +1,6 @@
 package pl.lukbol.ProjektSkillforge.Configs;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,15 +18,12 @@ import pl.lukbol.ProjektSkillforge.Utils.JwtUtil;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final CustomUserDetailsService customUserDetailsService;
     private final JwtUtil jwtUtil;
 
-    public SecurityConfig(CustomUserDetailsService customerUserDetailsService, JwtUtil jwtUtil) {
-        this.customUserDetailsService = customerUserDetailsService;
-        this.jwtUtil = jwtUtil;
-    }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -34,6 +32,9 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/user/register", "/login", "/").permitAll()
+                )
+                .authorizeHttpRequests(authz -> authz
+                        .requestMatchers("/user/delete", "/user/apply", "/user/userDetails", "/user/reset-password/*").hasAnyRole("ADMIN", "CLIENT")
                 )
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
@@ -60,6 +61,6 @@ public class SecurityConfig {
     }
     @Bean
     public JwtRequestFilter jwtRequestFilter() {
-        return new JwtRequestFilter(jwtUtil);
+        return new JwtRequestFilter(jwtUtil, customUserDetailsService);
     }
 }
