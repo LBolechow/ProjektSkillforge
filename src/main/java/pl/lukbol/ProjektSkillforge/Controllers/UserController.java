@@ -1,12 +1,13 @@
 package pl.lukbol.ProjektSkillforge.Controllers;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import pl.lukbol.ProjektSkillforge.Models.PasswordToken;
 import pl.lukbol.ProjektSkillforge.Models.User;
 import pl.lukbol.ProjektSkillforge.Repositories.PasswordTokenRepository;
 import pl.lukbol.ProjektSkillforge.Services.UserService;
@@ -14,9 +15,12 @@ import pl.lukbol.ProjektSkillforge.Services.UserService;
 import java.util.Map;
 
 @Controller
-@RequiredArgsConstructor
 public class UserController {
-    private final UserService userService;
+    private UserService userService;
+
+    private PasswordTokenRepository passwordTokenRepository;
+
+
 
     @GetMapping("/user/userDetails")
     public User getUserDetails(Authentication authentication) {
@@ -63,8 +67,7 @@ public class UserController {
         return userService.activateAccount(token);
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<Map<String, Object>> logout(HttpServletRequest request) {
-       return userService.logout(request);
-    }
+
+
+
 }

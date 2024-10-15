@@ -1,9 +1,6 @@
 package pl.lukbol.ProjektSkillforge.Services;
 
-import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,32 +13,49 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import pl.lukbol.ProjektSkillforge.Models.*;
-import pl.lukbol.ProjektSkillforge.Repositories.*;
+import pl.lukbol.ProjektSkillforge.Models.ActivationToken;
+import pl.lukbol.ProjektSkillforge.Models.PasswordToken;
+import pl.lukbol.ProjektSkillforge.Models.Role;
+import pl.lukbol.ProjektSkillforge.Models.User;
+import pl.lukbol.ProjektSkillforge.Repositories.ActivationTokenRepository;
+import pl.lukbol.ProjektSkillforge.Repositories.PasswordTokenRepository;
+import pl.lukbol.ProjektSkillforge.Repositories.RoleRepository;
+import pl.lukbol.ProjektSkillforge.Repositories.UserRepository;
 import pl.lukbol.ProjektSkillforge.Utils.JwtUtil;
 import pl.lukbol.ProjektSkillforge.Utils.UserUtils;
+
+import javax.swing.text.html.Option;
 import java.util.*;
 
 @Service
-@RequiredArgsConstructor
 public class UserService {
 
-    private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
-    private final UserUtils userUtils;
+    private PasswordEncoder passwordEncoder;
+    private JwtUtil jwtUtil;
+    private UserUtils userUtils;
 
-    private final UserRepository userRepository;
+    private UserRepository userRepository;
 
-    private final RoleRepository roleRepository;
+    private RoleRepository roleRepository;
 
-    private final PasswordTokenRepository passwordTokenRepository;
+    private PasswordTokenRepository passwordTokenRepository;
 
-    private final AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
-    private final ActivationTokenRepository activationTokenRepository;
+    private ActivationTokenRepository activationTokenRepository;
 
-    private final BlacklistedTokenRepository blacklistedTokenRepository;
+    public UserService(PasswordEncoder passwordEncoder, JwtUtil jwtUtil, UserUtils userUtils, UserRepository userRepository, RoleRepository roleRepository, PasswordTokenRepository passwordTokenRepository, AuthenticationManager authenticationManager, ActivationTokenRepository activationTokenRepository) {
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+        this.userUtils = userUtils;
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.passwordTokenRepository = passwordTokenRepository;
+        this.authenticationManager=authenticationManager;
+        this.activationTokenRepository=activationTokenRepository;
+    }
     @Transactional
     public ResponseEntity<Map<String, Object>> authenticateUser(String usernameOrEmail,
                                                                 String password) {
@@ -139,9 +153,11 @@ public class UserService {
 
         String username = ((UserDetails)principal).getUsername();
 
-
-        return userRepository.findOptionalByUsername(username)
+        User user = userRepository.findOptionalByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+
+
+        return user;
     }
     @Transactional
     public ResponseEntity<Map<String, Object>> changeProfile(Authentication authentication,
@@ -317,26 +333,6 @@ public class UserService {
 
         return userUtils.createSuccessRedirectResponse("Aktywowane konto! Możesz się zalogować");
     }
-    @Transactional
-    public ResponseEntity<Map<String, Object>> logout(HttpServletRequest request) {
-        String token = jwtUtil.extractJwtFromRequest(request);
 
-        if (token == null) {
-            return userUtils.createErrorResponse("Nie znaleziono tokenu");
-        }
-        Claims claims;
-        try {
-            claims = jwtUtil.extractAllClaims(token);
-        } catch (Exception e) {
-            return userUtils.createErrorResponse("Nieprawidłowy token");
-        }
-
-        Date issuedAt = claims.getIssuedAt();
-        BlacklistedToken blacklistedToken = new BlacklistedToken(token, issuedAt);
-        blacklistedTokenRepository.save(blacklistedToken);
-
-        return userUtils.createSuccessResponse("Wylogowano pomyślnie");
-        //Przekierowanie do strony login po stronie frontendu.
-    }
 
 }
