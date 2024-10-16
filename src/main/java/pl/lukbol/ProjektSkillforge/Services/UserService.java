@@ -42,7 +42,9 @@ public class UserService {
     private final ActivationTokenRepository activationTokenRepository;
 
     private final BlacklistedTokenRepository blacklistedTokenRepository;
-    @Transactional
+
+    private final LoginHistoryRepository loginHistoryRepository;
+
     public ResponseEntity<Map<String, Object>> authenticateUser(String usernameOrEmail,
                                                                 String password) {
         String username;
@@ -75,6 +77,7 @@ public class UserService {
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
             response.put("redirectUrl", "http://localhost:8080/main");
+            userUtils.saveLogin(username);
             return ResponseEntity.ok(response);
 
         } catch (BadCredentialsException e) {
@@ -221,7 +224,7 @@ public class UserService {
             return userUtils.createErrorResponse("Błąd: " + e.getMessage());
         }
 
-        return userUtils.createSuccessResponse("Poprawnie usunięto konto.");
+        return userUtils.createSuccessResponse("Wysłano link do resetowania hasła na email.");
     }
 
     public ModelAndView showResetPasswordPage(String token) {
@@ -338,6 +341,20 @@ public class UserService {
         //Przekierowanie do strony login po stronie frontendu.
         return userUtils.createSuccessResponse("Wylogowano pomyślnie");
 
+    }
+    public ResponseEntity<List<LoginHistory>> getLoginHistory(Authentication authentication)
+    {
+        if (authentication == null) {
+            return null;
+        }
+        Object principal = authentication.getPrincipal();
+
+        String username = ((UserDetails)principal).getUsername();
+
+        List<LoginHistory> loginHistories  = loginHistoryRepository.findAllByUsername(username);;
+
+
+        return ResponseEntity.ok(loginHistories);
     }
 
 }

@@ -9,9 +9,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import pl.lukbol.ProjektSkillforge.Models.ActivationToken;
+import pl.lukbol.ProjektSkillforge.Models.LoginHistory;
 import pl.lukbol.ProjektSkillforge.Models.PasswordToken;
 import pl.lukbol.ProjektSkillforge.Models.User;
 import pl.lukbol.ProjektSkillforge.Repositories.ActivationTokenRepository;
+import pl.lukbol.ProjektSkillforge.Repositories.LoginHistoryRepository;
 import pl.lukbol.ProjektSkillforge.Repositories.PasswordTokenRepository;
 import pl.lukbol.ProjektSkillforge.Repositories.UserRepository;
 
@@ -32,6 +34,9 @@ public class UserUtils {
 
     private final ActivationTokenRepository activationTokenRepository;
 
+    private final LoginHistoryRepository loginHistoryRepository;
+
+
     public boolean emailExists(String email) {
         return userRepository.findByEmail(email) != null;
     }
@@ -49,6 +54,8 @@ public class UserUtils {
     public boolean isValidPassword(String password) {
         return password != null && password.matches(PASSWORD_PATTERN);
     }
+
+
 
     public ResponseEntity<Map<String, Object>> createErrorResponse(String message) {
         Map<String, Object> response = new HashMap<>();
@@ -107,6 +114,15 @@ public class UserUtils {
         ModelAndView modelAndView = new ModelAndView("errorView");
         modelAndView.addObject("errorMessage", message);
         return modelAndView;
+    }
+
+    public void saveLogin(String username)
+    {
+        Date currentDate = new Date();
+        LoginHistory loginHistory = new LoginHistory();
+        loginHistory.setUsername(username);
+        loginHistory.setLoginTime(currentDate);
+        loginHistoryRepository.save(loginHistory);
     }
 
 }

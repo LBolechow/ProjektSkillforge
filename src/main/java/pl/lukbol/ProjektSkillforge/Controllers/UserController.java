@@ -10,7 +10,9 @@ import org.springframework.web.servlet.ModelAndView;
 import pl.lukbol.ProjektSkillforge.Models.User;
 import pl.lukbol.ProjektSkillforge.Repositories.PasswordTokenRepository;
 import pl.lukbol.ProjektSkillforge.Services.UserService;
+import pl.lukbol.ProjektSkillforge.Models.LoginHistory;
 
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -66,5 +68,10 @@ public class UserController {
     @PostMapping("/logout")
     public ResponseEntity<Map<String, Object>> logout(HttpServletRequest request) {
        return userService.logout(request);
+    }
+    @GetMapping("/user/login-history")
+    public ResponseEntity<List<LoginHistory>> getLoginHistory(Authentication authentication) {
+
+        return userService.getLoginHistory(authentication);
     }
 }

@@ -33,7 +33,7 @@ public class SecurityConfig {
                         .requestMatchers("/user/register", "/login", "/", "/user/resetPasswordEmail", "/user/resetSite", "/user/resetPassword", "/user/activateAccount").permitAll()
                 )
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/user/delete", "/user/apply", "/user/userDetails").hasAnyRole("ADMIN", "CLIENT")
+                        .requestMatchers("/user/delete", "/user/apply", "/user/userDetails", "/user/login-history").hasAnyRole("ADMIN", "CLIENT")
                 )
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
