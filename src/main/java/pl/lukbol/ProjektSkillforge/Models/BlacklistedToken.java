@@ -9,7 +9,7 @@ import java.util.Date;
 @Table(name = "blacklisted_tokens")
 public class BlacklistedToken {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Column(unique = true, nullable = false)
     private String token;

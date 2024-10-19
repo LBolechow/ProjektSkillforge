@@ -30,10 +30,10 @@ public class SecurityConfig {
                         .disable()
                 )
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/user/register", "/login", "/", "/user/resetPasswordEmail", "/user/resetSite", "/user/resetPassword", "/user/activateAccount").permitAll()
+                        .requestMatchers("/user/register", "/login", "loginPage", "/", "/user/resetPasswordEmail", "/user/resetSite", "/user/resetPassword", "/user/activateAccount", "/registerPage").permitAll()
                 )
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/user/delete", "/user/apply", "/user/userDetails", "/user/login-history").hasAnyRole("ADMIN", "CLIENT")
+                        .requestMatchers("/user/deleteUser", "/user/apply", "/user/userDetails", "/user/login-history", "/user/login-history").hasAnyRole("ADMIN", "CLIENT")
                 )
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))

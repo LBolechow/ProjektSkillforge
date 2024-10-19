@@ -39,7 +39,7 @@ public class UserController {
     {
         return userService.changeProfile(authentication, name, surname, email, phoneNumber, password, repeatPassword);
     }
-    @DeleteMapping("/user/delete")
+    @DeleteMapping("/user/deleteUser")
     public ResponseEntity<Map<String, Object>> deleteUser(Authentication authentication) {
         return userService.deleteUser(authentication);
     }

@@ -8,8 +8,11 @@ import org.springframework.web.servlet.ModelAndView;
 public class UrlController {
     @RequestMapping(value="/loginPage")
     public ModelAndView getLogin() {
-        return new ModelAndView("loginPage");
+        return new ModelAndView("login");
     }
+
+    @RequestMapping(value="/registerPage")
+    public ModelAndView getRegister() {return new ModelAndView("register");}
 
     @RequestMapping(value="/profile")
     public ModelAndView getProfile() {return new ModelAndView("profile");}

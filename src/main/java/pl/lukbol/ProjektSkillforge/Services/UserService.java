@@ -127,7 +127,7 @@ public class UserService {
 
         try {
             userUtils.createAccountActivationToken(regUser);
-        } catch (Exception e) {
+        } catch (DataAccessException e) {
             return userUtils.createErrorResponse("Błąd: " + e.getMessage());
         }
 

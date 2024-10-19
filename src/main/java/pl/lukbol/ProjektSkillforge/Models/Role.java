@@ -1,5 +1,6 @@
 package pl.lukbol.ProjektSkillforge.Models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.Collection;
@@ -20,6 +21,7 @@ public class Role {
                     name = "role_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(
                     name = "privilege_id", referencedColumnName = "id"))
+    @JsonIgnore
     private Collection<Privilege> privileges;
 
 
