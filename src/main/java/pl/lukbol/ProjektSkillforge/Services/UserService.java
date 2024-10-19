@@ -330,8 +330,8 @@ public class UserService {
         Claims claims;
         try {
             claims = jwtUtil.extractAllClaims(token);
-        } catch (Exception e) {
-            return userUtils.createErrorResponse("Nieprawidłowy token");
+        } catch (DataAccessException e) {
+            return userUtils.createErrorResponse("Błąd: " + e.getMessage());
         }
 
         Date issuedAt = claims.getIssuedAt();
@@ -350,11 +350,20 @@ public class UserService {
         Object principal = authentication.getPrincipal();
 
         String username = ((UserDetails)principal).getUsername();
+        List<LoginHistory> loginHistories = null;
 
-        List<LoginHistory> loginHistories  = loginHistoryRepository.findAllByUsername(username);;
+        try {
+            loginHistories  = loginHistoryRepository.findAllByUsername(username);
+
+        }
+        catch (DataAccessException e)
+        {
+            userUtils.createErrorResponse("Błąd: " + e.getMessage());
+        }
 
 
-        return ResponseEntity.ok(loginHistories);
+
+       return ResponseEntity.ok(loginHistories);
     }
 
 }

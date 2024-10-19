@@ -55,7 +55,7 @@ public class UserController {
         return userService.showResetPasswordPage(token);
     }
 
-    //Resetuję hasło na stronie z tokenem
+    //Resetuję hasło w specjalnym widoku
     @PostMapping("/user/resetPassword")
     public ResponseEntity<Map<String, Object>> resetPassword(@RequestParam String token, @RequestParam String newPassword, @RequestParam String repeatPassword) {
         return userService.resetPassword(token, newPassword, repeatPassword);

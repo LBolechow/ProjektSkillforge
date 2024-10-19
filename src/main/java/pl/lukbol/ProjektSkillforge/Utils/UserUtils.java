@@ -97,7 +97,7 @@ public class UserUtils {
         String activationLink = "http://localhost:8080/activate?token=" + token;
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
-        message.setSubject("Resetowanie hasła");
+        message.setSubject("Link aktywacyjny konta");
         message.setText("Kliknij w link aby aktywować konto: " + activationLink);
         javaMailSender.send(message);
     }

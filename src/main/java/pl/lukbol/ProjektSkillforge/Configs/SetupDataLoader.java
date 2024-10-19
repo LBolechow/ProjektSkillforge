@@ -33,19 +33,25 @@ public class SetupDataLoader implements
     @Transactional
     public void onApplicationEvent(ContextRefreshedEvent event) {
 
+        //Privileges są dodane, jeżeli by wystąpiła potrzeba wyszczególnienia uprawnień. Na razie w systemie wykorzystywane są tylko Role.
         if (alreadySetup)
             return;
         Privilege readPrivilege
                 = createPrivilegeIfNotFound("READ_PRIVILEGE");
         Privilege writePrivilege
                 = createPrivilegeIfNotFound("WRITE_PRIVILEGE");
+        Privilege updatePrivilege
+                =createPrivilegeIfNotFound("UPDATE_PRIVILEGE");
+        Privilege deletePrivilege
+                =createPrivilegeIfNotFound("DELETE_PRIVILEGE");
+
 
         List<Privilege> adminPrivileges = Arrays.asList(
-                readPrivilege, writePrivilege);
+                readPrivilege, writePrivilege, updatePrivilege, deletePrivilege);
         createRoleIfNotFound("ROLE_ADMIN", adminPrivileges);
 
         List<Privilege> clientPrivileges = Arrays.asList(
-                readPrivilege);
+                readPrivilege, writePrivilege, updatePrivilege, deletePrivilege);
         createRoleIfNotFound("ROLE_CLIENT", clientPrivileges);
 
 

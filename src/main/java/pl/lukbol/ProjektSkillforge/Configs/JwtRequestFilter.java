@@ -31,15 +31,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         String jwt = jwtUtil.extractJwtFromRequest(request);
 
-        if (jwt != null && jwtUtil.isTokenBlacklisted(jwt)) {
+        if (jwt == null || jwtUtil.isTokenBlacklisted(jwt)) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Brak tokena lub token został unieważniony");
             return;
         }
 
         String username = null;
-        if (jwt != null) {
-            username = jwtUtil.extractUsername(jwt);
-        }
+
+        username = jwtUtil.extractUsername(jwt);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
