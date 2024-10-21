@@ -20,8 +20,8 @@ import java.util.Map;
 public class UserController {
     private final UserService userService;
 
-    @GetMapping("/user/userDetails")
-    public User getUserDetails(Authentication authentication) {
+    @GetMapping("/userDetails")
+    public ResponseEntity<User> getUserDetails(Authentication authentication) {
         return userService.getUserDetails(authentication);
     }
 

@@ -77,6 +77,7 @@ public class UserService {
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
             response.put("redirectUrl", "http://localhost:8080/main");
+            response.put("Username: ", username);
             userUtils.saveLogin(username);
             return ResponseEntity.ok(response);
 
@@ -133,7 +134,8 @@ public class UserService {
 
         return userUtils.createSuccessResponse("Poprawnie utworzono konto. Na adres email został wysłany link aktywacyjny.");
     }
-    public User getUserDetails(Authentication authentication)
+    @Transactional
+    public ResponseEntity<User> getUserDetails(Authentication authentication)
     {
         if (authentication == null) {
             return null;
@@ -142,9 +144,11 @@ public class UserService {
 
         String username = ((UserDetails)principal).getUsername();
 
-
-        return userRepository.findOptionalByUsername(username)
+        User user = userRepository.findOptionalByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+
+
+        return ResponseEntity.ok(user);
     }
     @Transactional
     public ResponseEntity<Map<String, Object>> changeProfile(Authentication authentication,

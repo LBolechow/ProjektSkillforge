@@ -28,7 +28,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     private final CustomUserDetailsService customUserDetailsService;
 
-    private static List<String> skipFilterUrls = Arrays.asList("/user/register", "/login", "/loginPage", "/",
+    private static List<String> skipFilterUrls = Arrays.asList("/user/register/**", "/login", "/loginPage", "/",
             "/user/resetPasswordEmail", "/user/resetSite",
             "/user/resetPassword", "/user/activateAccount",
             "/registerPage", "/h2-console/**", "/test", "/test/**", "/error");

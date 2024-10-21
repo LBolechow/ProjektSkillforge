@@ -34,7 +34,7 @@ public class SecurityConfig {
                                 "/user/resetPassword", "/user/activateAccount",
                                 "/registerPage", "/h2-console/**", "/test", "/test/**", "/error").permitAll()
                         .requestMatchers("/user/deleteUser", "/user/apply",
-                                "/user/userDetails", "/user/login-history")
+                                "/userDetails", "/user/login-history")
                         .hasAnyRole("ADMIN", "CLIENT")
                         .anyRequest().authenticated()
                 )
