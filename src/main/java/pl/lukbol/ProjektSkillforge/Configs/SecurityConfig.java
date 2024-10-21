@@ -17,7 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import pl.lukbol.ProjektSkillforge.Utils.JwtUtil;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final CustomUserDetailsService customUserDetailsService;
@@ -26,14 +26,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf
-                        .disable()
-                )
+                .csrf(csrf -> csrf.disable()) // Wyłącz CSRF
+                .cors(cors -> cors.disable())
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/user/register", "/login", "loginPage", "/", "/user/resetPasswordEmail", "/user/resetSite", "/user/resetPassword", "/user/activateAccount", "/registerPage").permitAll()
-                )
-                .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/user/deleteUser", "/user/apply", "/user/userDetails", "/user/login-history", "/user/login-history").hasAnyRole("ADMIN", "CLIENT")
+                        .requestMatchers("/user/register", "/login", "/loginPage", "/",
+                                "/user/resetPasswordEmail", "/user/resetSite",
+                                "/user/resetPassword", "/user/activateAccount",
+                                "/registerPage", "/h2-console/**", "/test", "/test/**", "/error").permitAll()
+                        .requestMatchers("/user/deleteUser", "/user/apply",
+                                "/user/userDetails", "/user/login-history")
+                        .hasAnyRole("ADMIN", "CLIENT")
+                        .anyRequest().authenticated()
                 )
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
@@ -41,6 +44,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
+
 
         http.addFilterBefore(jwtRequestFilter(), UsernamePasswordAuthenticationFilter.class);
 

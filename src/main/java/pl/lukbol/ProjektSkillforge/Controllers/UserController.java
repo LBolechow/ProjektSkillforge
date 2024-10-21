@@ -74,4 +74,8 @@ public class UserController {
 
         return userService.getLoginHistory(authentication);
     }
+    @GetMapping("/test")
+    public ResponseEntity<String> testEndpoint() {
+        return ResponseEntity.ok("Test endpoint works!");
+    }
 }
