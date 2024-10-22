@@ -26,8 +26,14 @@ public class UserController {
     }
 
     @PostMapping("/user/register")
-    public ResponseEntity<Map<String, Object>> registerUser(@RequestBody User request) {
-        return userService.registerUser(request);
+    public ResponseEntity<Map<String, Object>> registerUser(@RequestParam("name") String username,
+                                                            @RequestParam("name") String name,
+                                                            @RequestParam("surname") String surname,
+                                                            @RequestParam("email") String email,
+                                                            @RequestParam("phoneNumber") String phoneNumber,
+                                                            @RequestParam("password") String password
+                                                            ) {
+        return userService.registerUser(username, name, surname, email ,phoneNumber, password);
     }
     @PutMapping("/user/apply")
     public ResponseEntity<Map<String, Object>> changeProfile(Authentication authentication, @RequestParam("name") String name,
@@ -65,7 +71,7 @@ public class UserController {
         return userService.activateAccount(token);
     }
 
-    @PostMapping("/logout")
+    @PostMapping("/user/logout")
     public ResponseEntity<Map<String, Object>> logout(HttpServletRequest request) {
        return userService.logout(request);
     }

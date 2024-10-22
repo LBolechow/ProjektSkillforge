@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
@@ -17,10 +18,7 @@ import pl.lukbol.ProjektSkillforge.Repositories.LoginHistoryRepository;
 import pl.lukbol.ProjektSkillforge.Repositories.PasswordTokenRepository;
 import pl.lukbol.ProjektSkillforge.Repositories.UserRepository;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -86,12 +84,14 @@ public class UserUtils {
         sendPasswordResetEmail(user.getEmail(), token);
 
     }
-    public void createAccountActivationToken(User user) {
+    public void createAccountActivationToken(String email) {
+        User user = userRepository.findOptionalByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + email));
         String token = UUID.randomUUID().toString();
         Date expiryDate = new Date(System.currentTimeMillis() + 24 * 3600000); //+ 24h
         ActivationToken myToken = new ActivationToken(token, user, expiryDate);
         activationTokenRepository.save(myToken);
-        sendAccountActivationEmail(user.getEmail(), token);
+        sendAccountActivationEmail(email, token);
     }
     public void sendAccountActivationEmail(String email, String token) {
         String activationLink = "http://localhost:8080/activate?token=" + token;

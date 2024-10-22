@@ -88,33 +88,25 @@ public class UserService {
     }
 
     @Transactional
-    public ResponseEntity<Map<String, Object>> registerUser(User request) {
+    public ResponseEntity<Map<String, Object>> registerUser(String username, String name, String surname, String email , String phoneNumber, String password) {
 
-        if (userUtils.emailExists(request.getEmail())) {
+        if (userUtils.emailExists(email)) {
             return userUtils.createErrorResponse("Użytkownik o takim adresie email już istnieje.");
         }
 
-        if (userUtils.phoneNumberExists(request.getPhoneNumber())) {
+        if (userUtils.phoneNumberExists(phoneNumber)) {
             return userUtils.createErrorResponse("Użytkownik o takim numerze telefonu już istnieje.");
         }
-        if (userUtils.usernameExists(request.getPhoneNumber())) {
+        if (userUtils.usernameExists(username)) {
             return userUtils.createErrorResponse("Użytkownik o takiej nazwie użytkownika już istnieje.");
         }
 
-        if (!userUtils.isValidPassword(request.getPassword())) {
+        if (!userUtils.isValidPassword(password)) {
             return userUtils.createErrorResponse("Hasło musi spełniać określone kryteria bezpieczeństwa.");
         }
 
 
-        User regUser = new User(
-                request.getUsername(),
-                request.getName(),
-                request.getSurname(),
-                request.getEmail(),
-                request.getPhoneNumber(),
-                passwordEncoder.encode(request.getPassword()),
-                false
-        );
+        User regUser = new User(name, surname, email, phoneNumber, passwordEncoder.encode(password), username, false);
 
         //Automatycznie nadaję rolę Client podczas rejestracji.
         Role role = roleRepository.findByName("ROLE_CLIENT");
@@ -127,10 +119,12 @@ public class UserService {
         }
 
         try {
-            userUtils.createAccountActivationToken(regUser);
+            userUtils.createAccountActivationToken(regUser.getEmail());
         } catch (DataAccessException e) {
             return userUtils.createErrorResponse("Błąd: " + e.getMessage());
         }
+
+
 
         return userUtils.createSuccessResponse("Poprawnie utworzono konto. Na adres email został wysłany link aktywacyjny.");
     }
@@ -146,6 +140,7 @@ public class UserService {
 
         User user = userRepository.findOptionalByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+
 
 
         return ResponseEntity.ok(user);
@@ -310,7 +305,7 @@ public class UserService {
 
         if (optionalActivationToken.get().isExpired())
         {
-            userUtils.createAccountActivationToken(user);
+            userUtils.createAccountActivationToken(user.getEmail());
             return userUtils.createActivationErrorResponse("Token wygasł. Nowy zostanie wysłany ta ten sam adres email.");
         }
 
