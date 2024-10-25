@@ -25,7 +25,7 @@ public class UserController {
     }
 
     @PostMapping("/user/register")
-    public ResponseEntity<Map<String, Object>> registerUser(@RequestParam("name") String username,
+    public ResponseEntity<Map<String, Object>> registerUser(@RequestParam("username") String username,
                                                             @RequestParam("name") String name,
                                                             @RequestParam("surname") String surname,
                                                             @RequestParam("email") String email,

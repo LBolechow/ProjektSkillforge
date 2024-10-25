@@ -68,7 +68,7 @@ public class User {
     }
 
     public void setName(String name) {
-        name = name;
+        this.name = name;
     }
 
     public String getSurname() {
@@ -76,7 +76,7 @@ public class User {
     }
 
     public void setSurname(String surname) {
-        surname = surname;
+        this.surname = surname;
     }
 
     public String getEmail() {

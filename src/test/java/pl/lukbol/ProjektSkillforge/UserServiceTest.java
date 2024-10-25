@@ -76,10 +76,7 @@ public class UserServiceTest {
         String username = "testuser";
         String token = "mockedToken";
 
-        // Mockowanie użytkownika
         User user = new User("Jan", "Kowalski", usernameOrEmail, "123456789", "encodedPassword", username, true);
-
-        // Mockowanie zwracanych wartości
         when(userRepository.findByEmail(usernameOrEmail)).thenReturn(user);
         when(userRepository.findOptionalByUsername(username)).thenReturn(Optional.of(user));
         when(authenticationManager.authenticate(any())).thenReturn(mock(Authentication.class));
@@ -94,8 +91,7 @@ public class UserServiceTest {
         assertNotNull(body);
         assertEquals(token, body.get("token"));
         assertEquals("http://localhost:8080/main", body.get("redirectUrl"));
-        assertEquals(username, body.get("Username: "));
-
+        assertEquals(username, body.get("username"));
 
         verify(userRepository).findByEmail(usernameOrEmail);
         verify(userRepository).findOptionalByUsername(username);

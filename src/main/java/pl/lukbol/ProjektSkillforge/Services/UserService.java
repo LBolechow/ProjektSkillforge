@@ -77,7 +77,7 @@ public class UserService {
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
             response.put("redirectUrl", "http://localhost:8080/main");
-            response.put("Username: ", username);
+            response.put("username", username);
             userUtils.saveLogin(username);
             return ResponseEntity.ok(response);
 
