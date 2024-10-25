@@ -335,17 +335,24 @@ public class UserServiceTest {
         when(userRepository.findOptionalByUsername("validUsername")).thenReturn(Optional.of(user));
         when(userRepository.save(user)).thenReturn(user);
 
-        ModelAndView successView = new ModelAndView("successView");
-        when(userUtils.createSuccessRedirectResponse("Aktywowane konto! Możesz się zalogować")).thenReturn(successView);
+        when(userUtils.createSuccessResponse(anyString()))
+                .thenAnswer(invocation -> {
+                    Map<String, Object> successResponse = new HashMap<>();
+                    successResponse.put("success", true);
+                    successResponse.put("message", "Aktywowane konto! Możesz się zalogować");
+                    return ResponseEntity.ok(successResponse);
+                });
 
-        ModelAndView response = userService.activateAccount(token);
+        ResponseEntity<Map<String, Object>> response = userService.activateAccount(token);
 
         assertNotNull(response);
-        assertEquals("successView", response.getViewName());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue((Boolean) response.getBody().get("success"));
+        assertEquals("Aktywowane konto! Możesz się zalogować", response.getBody().get("message"));
 
         verify(user).setActivated(true);
         verify(userRepository).save(user);
-        verify(userUtils).createSuccessRedirectResponse("Aktywowane konto! Możesz się zalogować");
+        verify(userUtils).createSuccessResponse("Aktywowane konto! Możesz się zalogować");
     }
 
     @Test

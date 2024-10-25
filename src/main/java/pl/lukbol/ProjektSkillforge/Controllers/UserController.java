@@ -65,8 +65,8 @@ public class UserController {
     public ResponseEntity<Map<String, Object>> resetPassword(@RequestParam String token, @RequestParam String newPassword, @RequestParam String repeatPassword) {
         return userService.resetPassword(token, newPassword, repeatPassword);
     }
-    @PostMapping("/user/activateAccount")
-    public ModelAndView activateAccount(@RequestParam String token){
+    @PostMapping("/activate")
+    public  ResponseEntity<Map<String, Object>> activateAccount(@RequestParam String token){
         return userService.activateAccount(token);
     }
 

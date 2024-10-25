@@ -10,4 +10,6 @@ public interface BlacklistedTokenRepository extends JpaRepository<BlacklistedTok
     BlacklistedToken findByToken(String token);
 
     Optional<BlacklistedToken> findOptionalByToken(String token);
+
+
 }

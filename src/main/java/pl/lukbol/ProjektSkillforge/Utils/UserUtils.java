@@ -67,11 +67,6 @@ public class UserUtils {
         response.put("message", message);
         return ResponseEntity.ok(response);
     }
-    public ModelAndView createSuccessRedirectResponse(String message) {
-        ModelAndView modelAndView = new ModelAndView("login");
-        modelAndView.addObject("Wiadomość", message);
-        return modelAndView;
-    }
     public boolean isNullOrEmpty(String value) {
         return value == null || value.isEmpty();
     }
@@ -109,11 +104,6 @@ public class UserUtils {
         javaMailSender.send(message);
     }
 
-    public ModelAndView createActivationErrorResponse(String message) {
-        ModelAndView modelAndView = new ModelAndView("errorView");
-        modelAndView.addObject("errorMessage", message);
-        return modelAndView;
-    }
 
     public void saveLogin(String username)
     {

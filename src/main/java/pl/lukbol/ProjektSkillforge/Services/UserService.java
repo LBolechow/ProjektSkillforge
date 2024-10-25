@@ -52,7 +52,8 @@ public class UserService {
             if (usernameOrEmail.contains("@") && usernameOrEmail.contains(".")) {
                 User userByEmail = userRepository.findByEmail(usernameOrEmail);
                 if (userByEmail == null) {
-                    throw new BadCredentialsException("Nie znaleziono użytkownika o takim adresie email.");
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                            .body(Collections.singletonMap("message", "Nie znaleziono użytkownika o takim adresie email."));
                 }
                 username = userByEmail.getUsername();
             } else {
@@ -62,8 +63,8 @@ public class UserService {
                     .orElseThrow(() -> new UsernameNotFoundException("Brak użytkownika z taką nazwą: " + username));
             if (!user.isActivated())
             {
-                //Możliwa opcja generowania nowego tokena email podczas logowania
-                throw new BadCredentialsException("Użytkownik nie jest aktywowany. Sprawdź swój adres email");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Collections.singletonMap("message", "Użytkownik nie jest aktywowany. Sprawdź swój adres email"));
             }
 
 
@@ -198,6 +199,10 @@ public class UserService {
         String username = ((UserDetails) principal).getUsername();
         User user = userRepository.findOptionalByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Nie znaleziono użytkownika z nazwą: " + username));
+
+        activationTokenRepository.deleteByUserId(user.getId());
+        passwordTokenRepository.deleteByUserId(user.getId());
+
         try
         {
             userRepository.delete(user);
@@ -214,6 +219,8 @@ public class UserService {
     {
         User user = userRepository.findOptionalByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Brak użytkownika z emailem: " + email));
+
+        passwordTokenRepository.deleteByUserId(user.getId());
 
         try {
             userUtils.createPasswordResetTokenForUser(user);
@@ -284,11 +291,11 @@ public class UserService {
     }
 
 
-    public ModelAndView activateAccount(String token){
+    public  ResponseEntity<Map<String, Object>> activateAccount(String token){
         Optional<ActivationToken> optionalActivationToken = activationTokenRepository.findOptionalByToken(token);
 
         if (optionalActivationToken.isEmpty()) {
-            return userUtils.createActivationErrorResponse("Token jest nieprawidłowy lub wygasł.");
+            return userUtils.createErrorResponse("Token jest nieprawidłowy lub wygasł.");
         }
 
 
@@ -296,7 +303,7 @@ public class UserService {
         String username = activationToken.getUser().getUsername();
 
         if (userUtils.isNullOrEmpty(username)) {
-           return userUtils.createActivationErrorResponse("Nazwa użytkownika jest pusta.");
+           return userUtils.createErrorResponse("Nazwa użytkownika jest pusta.");
         }
 
         User user = userRepository.findOptionalByUsername(username)
@@ -306,18 +313,18 @@ public class UserService {
         if (optionalActivationToken.get().isExpired())
         {
             userUtils.createAccountActivationToken(user.getEmail());
-            return userUtils.createActivationErrorResponse("Token wygasł. Nowy zostanie wysłany ta ten sam adres email.");
+            return userUtils.createErrorResponse("Token wygasł. Nowy zostanie wysłany ta ten sam adres email.");
         }
 
         try {
             user.setActivated(true);
             userRepository.save(user);
         } catch (DataAccessException e) {
-            return userUtils.createActivationErrorResponse("Błąd: " + e.getMessage());
+            return userUtils.createErrorResponse("Błąd: " + e.getMessage());
         }
 
 
-        return userUtils.createSuccessRedirectResponse("Aktywowane konto! Możesz się zalogować");
+        return userUtils.createSuccessResponse("Aktywowane konto! Możesz się zalogować");
     }
     @Transactional
     public ResponseEntity<Map<String, Object>> logout(HttpServletRequest request) {

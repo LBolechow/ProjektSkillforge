@@ -1,6 +1,8 @@
 package pl.lukbol.ProjektSkillforge.Repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import pl.lukbol.ProjektSkillforge.Models.User;
 
 import java.util.Optional;
@@ -17,6 +19,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findByUsername(String username);
 
     Optional<User> findOptionalByUsername(String usernameOrEmail);
-
 
 }

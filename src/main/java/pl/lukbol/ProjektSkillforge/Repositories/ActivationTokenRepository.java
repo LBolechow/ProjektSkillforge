@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface ActivationTokenRepository extends JpaRepository<ActivationToken, Long> {
     Optional<ActivationToken> findOptionalByToken(String token);
 
+    void deleteByUserId(Long userId);
 }

@@ -13,7 +13,7 @@ public class Privilege {
 
     private String name;
 
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "privileges")
+    @ManyToMany(mappedBy = "privileges")
     private Collection<Role> roles;
 
     public Privilege() {

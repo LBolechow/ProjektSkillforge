@@ -13,7 +13,7 @@ public class ActivationToken {
     private Long id;
     private String token;
 
-    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
+    @ManyToOne(targetEntity = User.class)
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
 
