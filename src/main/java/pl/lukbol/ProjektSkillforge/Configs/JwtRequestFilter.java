@@ -51,7 +51,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         String username = jwtUtil.extractUsername(jwt);
 
-        // Przetwarzanie dla autoryzowanych użytkowników
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
             if (jwtUtil.validateToken(jwt, userDetails.getUsername())) {
@@ -61,7 +60,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
         }
 
-        // Kontynuuj przetwarzanie dla innych endpointów
         chain.doFilter(request, response);
     }
 }

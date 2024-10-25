@@ -82,7 +82,6 @@ public class UserUtils {
         PasswordToken myToken = new PasswordToken(token, user, expiryDate);
         passwordTokenRepository.save(myToken);
         sendPasswordResetEmail(user.getEmail(), token);
-
     }
     public void createAccountActivationToken(String email) {
         User user = userRepository.findOptionalByEmail(email)
