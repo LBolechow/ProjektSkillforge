@@ -1,0 +1,15 @@
+# Dockerfile.test
+FROM openjdk:17-jdk-alpine
+
+# Ustawienie katalogu roboczego
+WORKDIR /app
+
+# Skopiowanie plików pom.xml i src do obrazu
+COPY pom.xml .
+COPY src ./src
+
+# Instalacja Mavena
+RUN apk add --no-cache maven
+
+# Uruchomienie testów
+CMD ["mvn", "test"]
