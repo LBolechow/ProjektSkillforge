@@ -1,9 +1,13 @@
 package pl.lukbol.ProjektSkillforge.Models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 
+@Setter
+@Getter
 @Entity
 @Table(name="resetTokens")
 public class PasswordToken {
@@ -32,37 +36,6 @@ public class PasswordToken {
         this.expiryDate = expiryDate;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Date getExpiryDate() {
-        return expiryDate;
-    }
-
-    public void setExpiryDate(Date expiryDate) {
-        this.expiryDate = expiryDate;
-    }
     public boolean isExpired() {
         return expiryDate.before(new Date());
     }

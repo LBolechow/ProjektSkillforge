@@ -10,6 +10,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -65,6 +67,9 @@ public class UserServiceTest {
 
     @Mock
     private PasswordTokenRepository passwordTokenRepository;
+
+    @Mock
+    private KafkaTemplate<String, String> kafkaTemplate;
 
     public UserServiceTest() {
     }

@@ -6,16 +6,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pl.lukbol.ProjektSkillforge.Models.*;
 import pl.lukbol.ProjektSkillforge.Repositories.*;
-import pl.lukbol.ProjektSkillforge.Services.UserService;
-import pl.lukbol.ProjektSkillforge.Utils.JwtUtil;
-import pl.lukbol.ProjektSkillforge.Utils.UserUtils;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -29,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("${spring.profiles.active:local}")
 class ProjektSkillforgeApplicationTests {
 	@Autowired
 	private PasswordEncoder passwordEncoder;

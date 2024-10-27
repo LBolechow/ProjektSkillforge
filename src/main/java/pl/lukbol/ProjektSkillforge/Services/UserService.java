@@ -4,9 +4,11 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -45,6 +47,9 @@ public class UserService {
 
     private final LoginHistoryRepository loginHistoryRepository;
 
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
+
     public ResponseEntity<Map<String, Object>> authenticateUser(String usernameOrEmail,
                                                                 String password) {
         String username;
@@ -74,6 +79,7 @@ public class UserService {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String token = jwtUtil.generateToken(username);
+            // kafkaTemplate.send("logins", username);
 
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);

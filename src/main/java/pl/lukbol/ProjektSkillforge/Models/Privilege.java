@@ -1,9 +1,12 @@
 package pl.lukbol.ProjektSkillforge.Models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Collection;
-
+@Setter
+@Getter
 @Entity
 @Table(name="privileges")
 public class Privilege {
@@ -23,27 +26,5 @@ public class Privilege {
         this.name = name;
     }
 
-    public Long getId() {
-        return Id;
-    }
 
-    public void setId(Long id) {
-        Id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Collection<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Collection<Role> roles) {
-        this.roles = roles;
-    }
 }

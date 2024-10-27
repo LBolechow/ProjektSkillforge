@@ -1,10 +1,12 @@
 package pl.lukbol.ProjektSkillforge.Models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.util.Date;
-
+@Setter
+@Getter
 @Entity
 @Table(name = "blacklisted_tokens")
 public class BlacklistedToken {
@@ -21,28 +23,6 @@ public class BlacklistedToken {
         this.token = token;
         this.expiresAt = expiresAt;
     }
-    public Long getId() {
-        return id;
-    }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public Date getCreatedAt() {
-        return expiresAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.expiresAt = createdAt;
-    }
 
 }

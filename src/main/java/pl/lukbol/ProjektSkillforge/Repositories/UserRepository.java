@@ -1,8 +1,6 @@
 package pl.lukbol.ProjektSkillforge.Repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import pl.lukbol.ProjektSkillforge.Models.User;
 
 import java.util.Optional;
@@ -10,7 +8,6 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     User findByEmail(String email);
 
-    User findByName(String name);
 
     User findByPhoneNumber(String phoneNumber);
 
