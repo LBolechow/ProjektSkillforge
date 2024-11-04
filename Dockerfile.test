@@ -3,10 +3,11 @@ FROM openjdk:17-jdk-alpine
 WORKDIR /app
 
 COPY pom.xml .
+
+RUN apk add --no-cache maven
+
 COPY src ./src
 
 ENV SPRING_PROFILES_ACTIVE=docker
-
-RUN apk add --no-cache maven
 
 CMD ["mvn", "test"]

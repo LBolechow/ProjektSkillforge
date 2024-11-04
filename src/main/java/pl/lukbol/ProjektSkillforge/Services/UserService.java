@@ -47,7 +47,7 @@ public class UserService {
 
     private final LoginHistoryRepository loginHistoryRepository;
 
-    @Autowired
+    @Autowired(required = false)
     private KafkaTemplate<String, String> kafkaTemplate;
 
     public ResponseEntity<Map<String, Object>> authenticateUser(String usernameOrEmail,
@@ -79,7 +79,9 @@ public class UserService {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String token = jwtUtil.generateToken(username);
-            // kafkaTemplate.send("logins", username);
+            if (kafkaTemplate != null) {
+                kafkaTemplate.send("logins", username);
+            }
 
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
