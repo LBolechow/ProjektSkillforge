@@ -36,4 +36,5 @@ public class KafkaConfig {
     public void consume(String message) {
         System.out.println("Odebrano wiadomość: " + message);
     }
+
 }

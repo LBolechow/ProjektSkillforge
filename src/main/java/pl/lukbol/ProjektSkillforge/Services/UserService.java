@@ -81,6 +81,9 @@ public class UserService {
             String token = jwtUtil.generateToken(username);
             if (kafkaTemplate != null) {
                 kafkaTemplate.send("logins", username);
+                System.out.println("Wysłano wiadomość: " + username);
+            } else {
+                System.err.println("KafkaTemplate jest null!");
             }
 
             Map<String, Object> response = new HashMap<>();
